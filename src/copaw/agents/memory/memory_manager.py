@@ -44,6 +44,41 @@ from ...config.utils import load_config
 
 logger = logging.getLogger(__name__)
 
+# Default max length for text truncation
+_DEFAULT_MAX_FORMATTER_TEXT_LENGTH = 5000
+
+
+def _truncate_text(text: str, max_length: int | None = None) -> str:
+    """Truncate text to max length, keeping head and tail portions.
+
+    Args:
+        text: The text to truncate
+        max_length: Maximum allowed length (from env or default 5000)
+
+    Returns:
+        Truncated text with middle replaced by [...truncated...]
+    """
+    text = str(text) if text else ""
+    if not text:
+        return text
+
+    if max_length is None:
+        max_length = int(
+            os.environ.get(
+                "MAX_FORMATTER_TEXT_LENGTH",
+                _DEFAULT_MAX_FORMATTER_TEXT_LENGTH,
+            ),
+        )
+
+    if len(text) <= max_length:
+        return text
+
+    half_length = max_length // 2
+    return (
+        f"{text[:half_length]}\n\n[...truncated {len(text) - max_length} "
+        f"chars...]\n\n{text[-half_length:]}"
+    )
+
 
 class TimestampedDashScopeChatFormatter(DashScopeChatFormatter):
     """DashScope formatter that includes timestamp in formatted messages.
@@ -56,25 +91,15 @@ class TimestampedDashScopeChatFormatter(DashScopeChatFormatter):
     def convert_tool_result_to_string(
         output: str | list[dict],
     ) -> tuple[str, list[tuple[str, dict]]]:
-        """Extend parent class to support file blocks.
+        """Convert tool result to string with file block support.
 
-        Strategy:
-        1. Try base class method first
-        2. If exception occurs, use custom logic
-        3. Replicate base class logic for text/image/audio/video
-        4. Add file block handling
-        5. Unknown block types: log warning and discard
+        Extends base class to:
+        - Support file blocks
+        - Handle invalid blocks gracefully (log warning instead of raising)
         """
         if isinstance(output, str):
             return output, []
 
-        # Try parent class method first
-        try:
-            return FormatterBase.convert_tool_result_to_string(output)
-        except (ValueError, AssertionError):
-            pass  # Fall through to custom handling
-
-        # Custom handling: replicate base class logic + file support
         textual_output = []
         multimodal_data = []
 
@@ -199,7 +224,7 @@ class TimestampedDashScopeChatFormatter(DashScopeChatFormatter):
                 if typ == "text":
                     content_blocks.append(
                         {
-                            "text": block.get("text"),
+                            "text": _truncate_text(block.get("text", "")),
                         },
                     )
 
@@ -230,6 +255,9 @@ class TimestampedDashScopeChatFormatter(DashScopeChatFormatter):
                         textual_output,
                         multimodal_data,
                     ) = self.convert_tool_result_to_string(block["output"])
+
+                    # Truncate tool result text
+                    textual_output = _truncate_text(textual_output)
 
                     # First add the tool result message in DashScope API format
                     formatted_msgs.append(

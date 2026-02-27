@@ -55,6 +55,10 @@ MEMORY_COMPACT_KEEP_RECENT = int(
     os.environ.get("COPAW_MEMORY_COMPACT_KEEP_RECENT", "5"),
 )
 
+MEMORY_COMPACT_RATIO = float(
+    os.environ.get("COPAW_MEMORY_COMPACT_RATIO", "0.7"),
+)
+
 DASHSCOPE_BASE_URL = os.environ.get(
     "DASHSCOPE_BASE_URL",
     "https://dashscope.aliyuncs.com/compatible-mode/v1",

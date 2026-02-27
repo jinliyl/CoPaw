@@ -10,6 +10,7 @@ Four commands are currently supported:
 - **`/new`** — Start a new conversation, saving memories in the background
 - **`/clear`** — Completely clear everything, without saving anything
 - **`/history`** — View current conversation history (read-only)
+- **`/compact_str`** — View the current compressed summary (read-only)
 
 > If you're not yet familiar with concepts like "compaction" or "long-term memory", we recommend reading the [Introduction](./intro.en.md) first.
 
@@ -17,12 +18,13 @@ Four commands are currently supported:
 
 ## Command Comparison
 
-| Command    | Requires Wait | Compressed Summary | Long-term Memory    | Message History     |
-| ---------- | ------------- | ------------------ | ------------------- | ------------------- |
-| `/compact` | Yes           | Generates new      | Saved in background | Marked as compacted |
-| `/new`     | No            | Cleared            | Saved in background | Marked as compacted |
-| `/clear`   | No            | Cleared            | Not saved           | Fully cleared       |
-| `/history` | No            | -                  | -                   | Read-only view      |
+| Command      | Requires Wait | Compressed Summary | Long-term Memory    | Message History     |
+| ------------ | ------------- | ------------------ | ------------------- | ------------------- |
+| `/compact`     | Yes           | Generates new      | Saved in background | Marked as compacted |
+| `/new`         | No            | Cleared            | Saved in background | Marked as compacted |
+| `/clear`       | No            | Cleared            | Not saved           | Fully cleared       |
+| `/history`     | No            | -                  | -                   | Read-only view      |
+| `/compact_str` | No            | -                  | -                   | Read-only view      |
 
 ---
 
@@ -104,6 +106,33 @@ Example response:
 [2] **assistant**: Sure, let me write a function for you...
 [3] **user**: Can you add error handling?
 ...
+```
+
+---
+
+## /compact_str — View Compressed Summary
+
+Display the current compressed summary content.
+
+```
+/compact_str
+```
+
+Example response (when summary exists):
+
+```
+**Compressed Summary**
+
+User requested help building a user authentication system, login endpoint implementation completed...
+```
+
+Example response (when no summary):
+
+```
+**No Compressed Summary**
+
+- No summary has been generated yet
+- Use /compact or wait for auto-compaction
 ```
 
 ---
