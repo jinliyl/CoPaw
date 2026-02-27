@@ -26,6 +26,7 @@
 
 ```
 **Compact Complete!**
+
 - Messages compacted: 12
 **Compressed Summary:**
 用户请求帮助构建用户认证系统，已完成登录接口的实现...
@@ -48,6 +49,7 @@
 
 ```
 **New Conversation Started!**
+
 - Summary task started in background
 - Ready for new conversation
 ```
@@ -66,6 +68,7 @@
 
 ```
 **History Cleared!**
+
 - Compressed summary reset
 - Memory is now empty
 ```
@@ -86,12 +89,21 @@
 
 ```
 **Conversation History**
-- Total messages: 5
 
-[1] **user**: 帮我写一个 Python 函数...
-[2] **assistant**: 好的，我来帮你写一个函数...
-[3] **user**: 能不能加上错误处理？
-...
+- Total messages: 3
+- Compressed summary length: 128
+
+[1] **user** (dict_len=156, text_len=42)
+    content: [text(len=68)]
+    preview: 帮我写一个 Python 函数...
+
+[2] **assistant** (dict_len=892, text_len=256)
+    content: [text(len=312)]
+    preview: 好的，我来帮你写一个函数...
+
+[3] **user** (dict_len=134, text_len=28)
+    content: [text(len=54)]
+    preview: 能不能加上错误处理？
 ```
 
 ---

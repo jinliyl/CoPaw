@@ -40,6 +40,7 @@ Example response:
 
 ```
 **Compact Complete!**
+
 - Messages compacted: 12
 **Compressed Summary:**
 User requested help building a user authentication system, login endpoint implementation completed...
@@ -62,6 +63,7 @@ Example response:
 
 ```
 **New Conversation Started!**
+
 - Summary task started in background
 - Ready for new conversation
 ```
@@ -80,6 +82,7 @@ Example response:
 
 ```
 **History Cleared!**
+
 - Compressed summary reset
 - Memory is now empty
 ```
@@ -100,12 +103,21 @@ Example response:
 
 ```
 **Conversation History**
-- Total messages: 5
 
-[1] **user**: Write me a Python function...
-[2] **assistant**: Sure, let me write a function for you...
-[3] **user**: Can you add error handling?
-...
+- Total messages: 3
+- Compressed summary length: 128
+
+[1] **user** (dict_len=156, text_len=42)
+    content: [text(len=68)]
+    preview: Write me a Python function...
+
+[2] **assistant** (dict_len=892, text_len=256)
+    content: [text(len=312)]
+    preview: Sure, let me write a function for you...
+
+[3] **user** (dict_len=134, text_len=28)
+    content: [text(len=54)]
+    preview: Can you add error handling?
 ```
 
 ---
