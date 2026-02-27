@@ -3,6 +3,7 @@
 
 This module handles system commands like /compact, /new, /clear, etc.
 """
+import json
 import logging
 from typing import TYPE_CHECKING
 
@@ -167,18 +168,46 @@ class CommandHandler:
 
     async def _process_history(self, messages: list[Msg]) -> Msg:
         """Process /history command."""
+
+        compressed_summary = self.memory.get_compressed_summary() or ""
+        compressed_summary_len = len(compressed_summary)
+
         lines = []
         for i, msg in enumerate(messages, 1):
             try:
+                msg_dict = msg.to_dict()
+                msg_dict_len = len(json.dumps(msg_dict, ensure_ascii=False))
                 text = msg.get_text_content() or ""
+                text_len = len(text)
                 preview = f"{text[:100]}..." if len(text) > 100 else text
+
+                # Content blocks info
+                content = msg.content
+                if isinstance(content, str):
+                    seq_blocks = ""
+                else:
+                    block_infos = []
+                    for block in content:
+                        block_type = block.get("type", "unknown")
+                        block_len = len(json.dumps(block, ensure_ascii=False))
+                        block_infos.append(f"{block_type}(len={block_len})")
+                    seq_blocks = f"\n    content: [{', '.join(block_infos)}]"
             except Exception as e:
+                msg_dict_len = 0
+                text_len = 0
+                seq_blocks = ""
                 preview = f"<error: {e}>"
-            lines.append(f"[{i}] **{msg.role}**: {preview}")
+            lines.append(
+                f"[{i}] **{msg.role}** (dict_len={msg_dict_len}, "
+                f"text_len={text_len}){seq_blocks}\n"
+                f"    preview: {preview}",
+            )
 
         return await self._make_system_msg(
             f"**Conversation History**\n\n"
-            f"- Total messages: {len(messages)}\n\n" + "\n".join(lines),
+            f"- Total messages: {len(messages)}\n"
+            f"- Compressed summary length: {compressed_summary_len}\n\n"
+            + "\n\n".join(lines),
         )
 
     async def _process_await_summary(self, _messages: list[Msg]) -> Msg:
