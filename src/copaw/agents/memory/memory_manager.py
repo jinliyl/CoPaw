@@ -45,7 +45,7 @@ from ...config.utils import load_config
 logger = logging.getLogger(__name__)
 
 # Default max length for text truncation
-_DEFAULT_MAX_FORMATTER_TEXT_LENGTH = 5000
+_DEFAULT_MAX_FORMATTER_TEXT_LENGTH = 4000
 
 
 def _truncate_text(text: str, max_length: int | None = None) -> str:
