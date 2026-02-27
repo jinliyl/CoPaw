@@ -3,9 +3,9 @@
 # CoPaw
 
 [![GitHub Repo](https://img.shields.io/badge/GitHub-Repo-black.svg?logo=github)](https://github.com/agentscope-ai/CoPaw)
+[![PyPI](https://img.shields.io/pypi/v/copaw?color=3775A9&label=PyPI&logo=pypi)](https://pypi.org/project/copaw/)
 [![Documentation](https://img.shields.io/badge/Docs-Website-green.svg?logo=readthedocs&label=Docs)](https://copaw.agentscope.io/)
 [![Python Version](https://img.shields.io/badge/python-3.10%20~%20%3C3.14-blue.svg?logo=python&label=Python)](https://www.python.org/downloads/)
-[![ModelScope](https://img.shields.io/badge/ModelScope-One--click-orange.svg?label=ModelScope)](https://modelscope.cn/studios/fork?target=AgentScope/CoPaw)
 [![Last Commit](https://img.shields.io/github/last-commit/agentscope-ai/CoPaw)](https://github.com/agentscope-ai/CoPaw)
 [![License](https://img.shields.io/badge/license-Apache%202.0-red.svg?logo=apache&label=License)](LICENSE)
 [![Code Style](https://img.shields.io/badge/code%20style-black-black.svg?logo=python&label=CodeStyle)](https://github.com/psf/black)
@@ -15,7 +15,7 @@
 [![Discord](https://img.shields.io/badge/Discord-Join_Us-blueviolet.svg?logo=discord)](https://discord.gg/eYMpfnkG8h)
 [![DingTalk](https://img.shields.io/badge/DingTalk-Join_Us-orange.svg)](https://qr.dingtalk.com/action/joingroup?code=v1,k1,OmDlBXpjW+I2vWjKDsjvI9dhcXjGZi3bQiojOq3dlDw=&_dt_no_comment=1&origin=11)
 
-[[Documentation](https://copaw.agentscope.io/)] [[Try ModelScope](https://modelscope.cn/studios/fork?target=AgentScope/CoPaw)] [[中文 README](README_zh.md)]
+[[Documentation](https://copaw.agentscope.io/)] [[中文 README](README_zh.md)]
 
 <p align="center">
   <img src="https://img.alicdn.com/imgextra/i1/O1CN01tvT5rg1JHQNRP8tXR_!!6000000001003-2-tps-1632-384.png" alt="CoPaw Logo" width="120">
@@ -40,12 +40,12 @@ Your Personal AI Assistant; easy to install, deploy on your own machine or on th
 >
 > <br>
 >
-> Social: daily digest of hot posts (Xiaohongshu, Zhihu, Reddit), Bilibili/YouTube summaries.
-> Productivity: newsletter digests to DingTalk/Feishu/QQ, contacts from email/calendar.
-> Creative: describe your goal, run overnight, get a draft next day.
-> Research: track tech/AI news, personal knowledge base.
-> Desktop: organize files, read/summarize docs, request files in chat.
-> Explore: combine Skills and cron into your own agentic app.
+> * **Social**: daily digest of hot posts (Xiaohongshu, Zhihu, Reddit), Bilibili/YouTube summaries.
+> * **Productivity**: newsletter digests to DingTalk/Feishu/QQ, contacts from email/calendar.
+> * **Creative**: describe your goal, run overnight, get a draft next day.
+> * **Research**: track tech/AI news, personal knowledge base.
+> * **Desktop**: organize files, read/summarize docs, request files in chat.
+> * **Explore**: combine Skills and cron into your own agentic app.
 >
 > </details>
 
@@ -72,7 +72,21 @@ Your Personal AI Assistant; easy to install, deploy on your own machine or on th
 
 ## Quick Start
 
-### One-line install (recommended)
+### pip install (recommended)
+
+If you prefer managing Python yourself:
+
+```bash
+pip install copaw
+copaw init --defaults
+copaw app
+```
+
+Then open **http://127.0.0.1:8088/** in your browser for the Console (chat with CoPaw, configure the agent). To talk in DingTalk, Feishu, QQ, etc., add a channel in the [docs](https://copaw.agentscope.io/docs/channels).
+
+![Console](https://img.alicdn.com/imgextra/i4/O1CN01jQ8IKh1oWJL5C0v5x_!!6000000005232-2-tps-3494-1644.png)
+
+### One-line install (beta, continuously improving)
 
 No Python required — the installer handles everything:
 
@@ -144,19 +158,6 @@ copaw uninstall --purge  # removes everything
 
 </details>
 
-### Alternative: pip install
-
-If you prefer managing Python yourself:
-
-```bash
-pip install copaw
-copaw init --defaults
-copaw app
-```
-
-Then open **http://127.0.0.1:8088/** in your browser for the Console (chat with CoPaw, configure the agent). To talk in DingTalk, Feishu, QQ, etc., add a channel in the [docs](https://copaw.agentscope.io/docs/channels).
-
-![Console](https://img.alicdn.com/imgextra/i4/O1CN01jQ8IKh1oWJL5C0v5x_!!6000000005232-2-tps-3494-1644.png)
 
 ### Using Docker
 
@@ -186,7 +187,7 @@ If you use a **cloud LLM** (e.g. DashScope, ModelScope), you must set an API key
 
 Tools that need extra keys (e.g. `TAVILY_API_KEY` for web search) can be set in Console **Settings → Environment variables**, or see [Config](https://copaw.agentscope.io/docs/config) for details.
 
-> **Using local models only?** If you use [Local Models](#-local-models) (llama.cpp or MLX), you do **not** need any API key.
+> **Using local models only?** If you use [Local Models](#local-models) (llama.cpp or MLX), you do **not** need any API key.
 
 
 ## Local Models
@@ -207,8 +208,6 @@ copaw app # start the server
 ```
 
 You can also download and manage local models from the Console UI.
-
-> **Full guide:** [Local Models documentation](https://copaw.agentscope.io/docs/local-models) covers all CLI commands, Console UI walkthrough, and backend details.
 
 ----
 
