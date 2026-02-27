@@ -74,8 +74,17 @@ def _truncate_text(text: str, max_length: int | None = None) -> str:
         return text
 
     half_length = max_length // 2
+    truncated_chars = len(text) - max_length
+    logger.info(
+        "Text truncated: original %d chars, kept head %d + tail %d, "
+        "removed %d chars.",
+        len(text),
+        half_length,
+        half_length,
+        truncated_chars,
+    )
     return (
-        f"{text[:half_length]}\n\n[...truncated {len(text) - max_length} "
+        f"{text[:half_length]}\n\n[...truncated {truncated_chars} "
         f"chars...]\n\n{text[-half_length:]}"
     )
 

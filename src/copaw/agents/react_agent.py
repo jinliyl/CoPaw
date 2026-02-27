@@ -86,7 +86,7 @@ class CoPawAgent(ReActAgent):
 
         # Memory compaction threshold: configurable ratio of max_input_length
         self._memory_compact_threshold = int(
-            max_input_length * MEMORY_COMPACT_RATIO
+            max_input_length * MEMORY_COMPACT_RATIO,
         )
 
         # Initialize toolkit with built-in tools
