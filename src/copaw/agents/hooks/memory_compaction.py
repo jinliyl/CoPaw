@@ -75,7 +75,6 @@ class MemoryCompactionHook:
         memory_manager: "MemoryManager",
         memory_compact_threshold: int,
         keep_recent: int = 10,
-        enable_truncate_tool_result_texts: bool = False,
     ):
         """Initialize memory compaction hook.
 
@@ -83,12 +82,22 @@ class MemoryCompactionHook:
             memory_manager: Memory manager instance for compaction
             memory_compact_threshold: Token count threshold for compaction
             keep_recent: Number of recent messages to preserve
-            enable_truncate_tool_result_texts: Whether to truncate tool result
         """
         self.memory_manager = memory_manager
         self.memory_compact_threshold = memory_compact_threshold
         self.keep_recent = keep_recent
-        self.enable_truncate_tool_result_texts = enable_truncate_tool_result_texts
+
+    @property
+    def enable_truncate_tool_result_texts(self) -> bool:
+        """Whether to truncate tool result texts.
+
+        Controlled by environment variable ENABLE_TRUNCATE_TOOL_RESULT_TEXTS.
+        Default is False (disabled).
+        """
+        return os.environ.get(
+            "ENABLE_TRUNCATE_TOOL_RESULT_TEXTS",
+            "false",
+        ).lower() in ("true", "1", "yes")
 
     async def __call__(
         self,
