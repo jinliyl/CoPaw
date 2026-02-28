@@ -69,7 +69,7 @@ The compacted summary is persisted, so you don't need to worry about losing it!
 |------------------------------------|----------|------------------------------------------------------------------------|
 | `COPAW_MEMORY_COMPACT_THRESHOLD`   | `100000` | Token threshold that triggers auto-compaction (capacity warning line)  |
 | `COPAW_MEMORY_COMPACT_KEEP_RECENT` | `3`      | Number of recent messages to keep after compaction                     |
-| `COPAW_MEMORY_COMPACT_RATIO`       | `0.8`    | Threshold ratio for triggering compaction (relative to context window) |
+| `COPAW_MEMORY_COMPACT_RATIO`       | `0.7`    | Threshold ratio for triggering compaction (relative to context window) |
 
 ## When Does Compaction Trigger?
 

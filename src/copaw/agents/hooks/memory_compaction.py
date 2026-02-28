@@ -75,6 +75,7 @@ class MemoryCompactionHook:
         memory_manager: "MemoryManager",
         memory_compact_threshold: int,
         keep_recent: int = 10,
+        enable_truncate_tool_result_texts: bool = False,
     ):
         """Initialize memory compaction hook.
 
@@ -82,10 +83,12 @@ class MemoryCompactionHook:
             memory_manager: Memory manager instance for compaction
             memory_compact_threshold: Token count threshold for compaction
             keep_recent: Number of recent messages to preserve
+            enable_truncate_tool_result_texts: Whether to truncate tool result
         """
         self.memory_manager = memory_manager
         self.memory_compact_threshold = memory_compact_threshold
         self.keep_recent = keep_recent
+        self.enable_truncate_tool_result_texts = enable_truncate_tool_result_texts
 
     async def __call__(
         self,
@@ -143,7 +146,7 @@ class MemoryCompactionHook:
                 messages_to_keep = []
 
             # Truncate tool result texts in messages_to_keep
-            if messages_to_keep:
+            if self.enable_truncate_tool_result_texts and messages_to_keep:
                 _truncate_tool_result_texts(messages_to_keep)
 
             prompt = await agent.formatter.format(msgs=messages_to_compact)
