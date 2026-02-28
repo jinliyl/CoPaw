@@ -52,11 +52,11 @@ MEMORY_COMPACT_THRESHOLD = int(
 )
 
 MEMORY_COMPACT_KEEP_RECENT = int(
-    os.environ.get("COPAW_MEMORY_COMPACT_KEEP_RECENT", "5"),
+    os.environ.get("COPAW_MEMORY_COMPACT_KEEP_RECENT", "3"),
 )
 
 MEMORY_COMPACT_RATIO = float(
-    os.environ.get("COPAW_MEMORY_COMPACT_RATIO", "0.7"),
+    os.environ.get("COPAW_MEMORY_COMPACT_RATIO", "0.8"),
 )
 
 DASHSCOPE_BASE_URL = os.environ.get(

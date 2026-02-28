@@ -40,17 +40,18 @@ CoPaw 所有配置和数据默认都在一个目录里，叫**工作目录**，�
 
 如果你不想用 `~/.copaw`，可以通过环境变量改工作目录或某些文件的路径：
 
-| 变量                               | 默认值         | 说明                                                           |
-| ---------------------------------- | -------------- | -------------------------------------------------------------- |
-| `COPAW_WORKING_DIR`                | `~/.copaw`     | 工作目录；config、心跳、jobs、chats、skills、memory 都在这下面 |
+| 变量                                 | 默认值            | 说明                                                |
+|------------------------------------|----------------|---------------------------------------------------|
+| `COPAW_WORKING_DIR`                | `~/.copaw`     | 工作目录；config、心跳、jobs、chats、skills、memory 都在这下面     |
 | `COPAW_CONFIG_FILE`                | `config.json`  | 配置文件名（相对工作目录）                                     |
-| `COPAW_HEARTBEAT_FILE`             | `HEARTBEAT.md` | 心跳问题文件名（相对工作目录）                                 |
-| `COPAW_JOBS_FILE`                  | `jobs.json`    | 定时任务文件名（相对工作目录）                                 |
-| `COPAW_CHATS_FILE`                 | `chats.json`   | 会话列表文件名（相对工作目录）                                 |
-| `COPAW_LOG_LEVEL`                  | `info`         | 日志级别（`debug`、`info`、`warning`、`error`、`critical`）    |
-| `COPAW_MEMORY_COMPACT_THRESHOLD`   | `100000`       | 触发记忆压缩的字符阈值                                         |
-| `COPAW_MEMORY_COMPACT_KEEP_RECENT` | `5`            | 压缩后保留的最近消息数                                         |
-| `COPAW_CONSOLE_STATIC_DIR`         | _（自动检测）_ | 控制台前端静态文件路径                                         |
+| `COPAW_HEARTBEAT_FILE`             | `HEARTBEAT.md` | 心跳问题文件名（相对工作目录）                                   |
+| `COPAW_JOBS_FILE`                  | `jobs.json`    | 定时任务文件名（相对工作目录）                                   |
+| `COPAW_CHATS_FILE`                 | `chats.json`   | 会话列表文件名（相对工作目录）                                   |
+| `COPAW_LOG_LEVEL`                  | `info`         | 日志级别（`debug`、`info`、`warning`、`error`、`critical`） |
+| `COPAW_MEMORY_COMPACT_THRESHOLD`   | `100000`       | 触发记忆压缩的字符阈值                                       |
+| `COPAW_MEMORY_COMPACT_KEEP_RECENT` | `3`            | 压缩后保留的最近消息数                                       |
+| `COPAW_MEMORY_COMPACT_RATIO`       | `0.8`          | 触发压缩的阈值比例（相对于上下文窗口大小）                             |
+| `COPAW_CONSOLE_STATIC_DIR`         | _（自动检测）_       | 控制台前端静态文件路径                                       |
 
 例如在 Linux/macOS 里临时换工作目录：
 
