@@ -336,7 +336,8 @@ class TimestampedDashScopeChatFormatter(DashScopeChatFormatter):
                             )
 
                     if promoted_blocks:
-                        # Insert promoted blocks as new user message(s)
+                        # Format promoted blocks directly and add to formatted_msgs
+                        # (instead of inserting into msgs, which won't work in reverse iteration)
                         promoted_blocks = [
                             TextBlock(
                                 type="text",
@@ -351,13 +352,32 @@ class TimestampedDashScopeChatFormatter(DashScopeChatFormatter):
                             ),
                         ]
 
-                        msgs.insert(
-                            i + 1,
-                            Msg(
-                                name="user",
-                                content=promoted_blocks,
-                                role="user",
-                            ),
+                        # Format the promoted blocks directly
+                        promoted_content_blocks: list[dict[str, Any]] = []
+                        for promoted_block in promoted_blocks:
+                            promoted_block_dict = (
+                                promoted_block
+                                if isinstance(promoted_block, dict)
+                                else promoted_block.model_dump()
+                            )
+                            promoted_typ = promoted_block_dict.get("type")
+                            if promoted_typ == "text":
+                                promoted_content_blocks.append(
+                                    {"text": promoted_block_dict.get("text", "")},
+                                )
+                            elif promoted_typ in ["image", "audio", "video"]:
+                                promoted_content_blocks.append(
+                                    _format_dashscope_media_block(
+                                        promoted_block_dict,
+                                    ),
+                                )
+
+                        # Add the promoted user message to formatted_msgs
+                        formatted_msgs.append(
+                            {
+                                "role": "user",
+                                "content": promoted_content_blocks,
+                            },
                         )
 
                 else:
