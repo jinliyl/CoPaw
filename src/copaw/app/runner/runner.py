@@ -199,8 +199,11 @@ class AgentRunner(Runner):
 
         try:
             if self.memory_manager is None:
+                config = load_config()
+                max_input_length = config.agents.running.max_input_length
                 self.memory_manager = MemoryManager(
                     working_dir=str(WORKING_DIR),
+                    max_input_length=max_input_length,
                 )
             await self.memory_manager.start()
         except Exception as e:
