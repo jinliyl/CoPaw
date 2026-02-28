@@ -437,7 +437,7 @@ class MemoryManager(ReMeFb):
 
         # Memory compaction threshold: configurable ratio of max_input_length
         self._memory_compact_threshold = int(
-            max_input_length * MEMORY_COMPACT_RATIO * 0.9,
+            max_input_length * MEMORY_COMPACT_RATIO * 0.9,  # Safety factor to stay below token limit
         )
 
         (
