@@ -425,12 +425,15 @@ class MemoryManager(ReMeFb):
         self,
         *args,
         working_dir: str,
-        max_input_length: int = 128 * 1024,  # 128K = 131072 tokens
         **kwargs,
     ):
         """Initialize MemoryManager with ReMeFs configuration."""
         if not _REME_AVAILABLE:
             raise RuntimeError("reme package not installed.")
+
+        # Get max_input_length from config
+        config = load_config()
+        max_input_length = config.agents.running.max_input_length
 
         # Memory compaction threshold: configurable ratio of max_input_length
         self._memory_compact_threshold = int(
