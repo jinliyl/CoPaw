@@ -4,13 +4,13 @@
 
 系统命令是一组以 `/` 开头的特殊指令，让你可以**直接控制对话状态**，而不需要等 AI 理解你的意图。
 
-| 命令           | 需要等待 | 压缩摘要      | 长期记忆    | 消息历史      |
-| -------------- | -------- | ------------- | ----------- | ------------- |
-| `/compact`     | ⏳ 是    | 📦 生成新摘要 | ✅ 后台保存 | 🏷️ 标记已压缩 |
-| `/new`         | ⚡ 否    | 🗑️ 清空       | ✅ 后台保存 | 🏷️ 标记已压缩 |
-| `/clear`       | ⚡ 否    | 🗑️ 清空       | ❌ 不保存   | 🗑️ 完全清空   |
-| `/history`     | ⚡ 否    | -             | -           | 📖 只读查看   |
-| `/compact_str` | ⚡ 否    | -             | -           | 📖 只读查看   |
+| 命令           | 需要等待 | 压缩摘要      | 长期记忆    | 消息历史      | 上下文占用          |
+| -------------- | -------- | ------------- | ----------- | ------------- | ------------------- |
+| `/compact`     | ⏳ 是    | 📦 生成新摘要 | ✅ 后台保存 | 🏷️ 标记已压缩 | -                   |
+| `/new`         | ⚡ 否    | 🗑️ 清空       | ✅ 后台保存 | 🏷️ 标记已压缩 | -                   |
+| `/clear`       | ⚡ 否    | 🗑️ 清空       | ❌ 不保存   | 🗑️ 完全清空   | -                   |
+| `/history`     | ⚡ 否    | -             | -           | 📖 只读查看   | 📊 Token明细+使用率 |
+| `/compact_str` | ⚡ 否    | -             | -           | -             | 📖 查看摘要内容     |
 
 ---
 
@@ -79,7 +79,7 @@
 
 ## /history - 查看当前对话历史
 
-显示当前对话中所有未压缩的消息列表。
+显示当前对话中所有未压缩的消息列表，以及详细的**上下文占用情况**。
 
 ```
 /history
@@ -91,20 +91,25 @@
 **Conversation History**
 
 - Total messages: 3
-- Compressed summary length: 128
+- Estimated tokens: 1256
+- Max input length: 128000
+- Context usage: 0.98%
+- Compressed summary tokens: 128
 
-[1] **user** (dict_len=156, text_len=42)
-    content: [text(len=68)]
+[1] **user** (text_tokens=42)
+    content: [text(tokens=42)]
     preview: 帮我写一个 Python 函数...
 
-[2] **assistant** (dict_len=892, text_len=256)
-    content: [text(len=312)]
+[2] **assistant** (text_tokens=256)
+    content: [text(tokens=256)]
     preview: 好的，我来帮你写一个函数...
 
-[3] **user** (dict_len=134, text_len=28)
-    content: [text(len=54)]
+[3] **user** (text_tokens=28)
+    content: [text(tokens=28)]
     preview: 能不能加上错误处理？
 ```
+
+> 💡 **提示**：建议多使用 `/history` 命令了解当前上下文占用情况。当 `Context usage` 接近 100% 时，说明对话即将触发自动压缩，此时可以主动使用 `/compact` 或 `/new` 来管理上下文。
 
 ---
 

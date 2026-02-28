@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 from agentscope.agent._react_agent import _MemoryMark
 from agentscope.message import Msg, TextBlock
 
+from ..config import load_config
 from .utils import safe_count_message_tokens, safe_count_str_tokens
 
 if TYPE_CHECKING:
@@ -249,6 +250,15 @@ class CommandHandler:
         messages_tokens = await safe_count_message_tokens(prompt)
         estimated_tokens = messages_tokens + compressed_summary_tokens
 
+        # Get max_input_length from config and calculate context usage ratio
+        config = load_config()
+        max_input_length = config.agents.running.max_input_length
+        context_usage_ratio = (
+            (estimated_tokens / max_input_length * 100)
+            if max_input_length > 0
+            else 0
+        )
+
         lines = []
         for i, msg in enumerate(messages, 1):
             try:
@@ -298,6 +308,8 @@ class CommandHandler:
             f"**Conversation History**\n\n"
             f"- Total messages: {len(messages)}\n"
             f"- Estimated tokens: {estimated_tokens}\n"
+            f"- Max input length: {max_input_length}\n"
+            f"- Context usage: {context_usage_ratio:.1f}%\n"
             f"- Compressed summary tokens: {compressed_summary_tokens}\n\n"
             + "\n\n".join(lines),
         )
