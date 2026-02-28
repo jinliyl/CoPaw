@@ -44,7 +44,7 @@ If you don't want to use `~/.copaw`, you can override the working directory or
 specific file names:
 
 | Variable                           | Default         | Meaning                                                                             |
-|------------------------------------|-----------------|-------------------------------------------------------------------------------------|
+| ---------------------------------- | --------------- | ----------------------------------------------------------------------------------- |
 | `COPAW_WORKING_DIR`                | `~/.copaw`      | Working directory; config, heartbeat, jobs, chats, skills, and memory all live here |
 | `COPAW_CONFIG_FILE`                | `config.json`   | Config file name (relative to working dir)                                          |
 | `COPAW_HEARTBEAT_FILE`             | `HEARTBEAT.md`  | Heartbeat prompt file name (relative to working dir)                                |
