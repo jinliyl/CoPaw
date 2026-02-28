@@ -558,11 +558,13 @@ class MemoryManager(ReMeFb):
         self.formatter: FormatterBase | None = None
 
     @staticmethod
-    def _safe_int(value: str, default: int) -> int:
+    def _safe_int(value: str | None, default: int) -> int:
         """Safely convert string to int, return default on failure."""
+        if value is None:
+            return default
         try:
             return int(value)
-        except (ValueError, TypeError):
+        except ValueError:
             logger.warning(
                 f"Invalid int value '{value}', using default {default}",
             )
