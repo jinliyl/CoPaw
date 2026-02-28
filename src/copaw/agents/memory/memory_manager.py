@@ -383,7 +383,7 @@ class TimestampedDashScopeChatFormatter(DashScopeChatFormatter):
                     > self._memory_compact_threshold
                 ):
                     # Skip older messages when threshold exceeded
-                    logger.debug(
+                    logger.info(
                         "Skipping older messages: token count %d + %d > %d",
                         total_token_count,
                         msg_token_count,
