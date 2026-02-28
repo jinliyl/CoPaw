@@ -582,22 +582,22 @@ class MemoryManager(ReMeFb):
             "text-embedding-v4",
         )
         embedding_dimensions = MemoryManager._safe_int(
-            os.environ.get("EMBEDDING_DIMENSIONS", "1024"),
+            os.environ.get("EMBEDDING_DIMENSIONS"),
             1024,
         )
         embedding_cache_enabled = (
             os.environ.get("EMBEDDING_CACHE_ENABLED", "true").lower() == "true"
         )
         embedding_max_cache_size = MemoryManager._safe_int(
-            os.environ.get("EMBEDDING_MAX_CACHE_SIZE", "2000"),
+            os.environ.get("EMBEDDING_MAX_CACHE_SIZE"),
             2000,
         )
         embedding_max_input_length = MemoryManager._safe_int(
-            os.environ.get("EMBEDDING_MAX_INPUT_LENGTH", "8192"),
+            os.environ.get("EMBEDDING_MAX_INPUT_LENGTH"),
             8192,
         )
         embedding_max_batch_size = MemoryManager._safe_int(
-            os.environ.get("EMBEDDING_MAX_BATCH_SIZE", "10"),
+            os.environ.get("EMBEDDING_MAX_BATCH_SIZE"),
             10,
         )
         return (
