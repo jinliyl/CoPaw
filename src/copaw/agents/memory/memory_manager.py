@@ -187,6 +187,7 @@ class TimestampedDashScopeChatFormatter(DashScopeChatFormatter):
                 multimodal_data,
             )
 
+    # pylint: disable=too-many-statements,too-many-nested-blocks
     async def _format(
         self,
         msgs: list[Msg],
@@ -336,8 +337,10 @@ class TimestampedDashScopeChatFormatter(DashScopeChatFormatter):
                             )
 
                     if promoted_blocks:
-                        # Format promoted blocks directly and add to formatted_msgs
-                        # (instead of inserting into msgs, which won't work in reverse iteration)
+                        # Format promoted blocks directly
+                        # and add to formatted_msgs
+                        # (instead of inserting into msgs,
+                        # which won't work in reverse iteration)
                         promoted_blocks = [
                             TextBlock(
                                 type="text",
@@ -363,7 +366,12 @@ class TimestampedDashScopeChatFormatter(DashScopeChatFormatter):
                             promoted_typ = promoted_block_dict.get("type")
                             if promoted_typ == "text":
                                 promoted_content_blocks.append(
-                                    {"text": promoted_block_dict.get("text", "")},
+                                    {
+                                        "text": promoted_block_dict.get(
+                                            "text",
+                                            "",
+                                        ),
+                                    },
                                 )
                             elif promoted_typ in ["image", "audio", "video"]:
                                 promoted_content_blocks.append(
@@ -457,7 +465,9 @@ class MemoryManager(ReMeFb):
 
         # Memory compaction threshold: configurable ratio of max_input_length
         self._memory_compact_threshold = int(
-            max_input_length * MEMORY_COMPACT_RATIO * 0.9,  # Safety factor to stay below token limit
+            max_input_length
+            * MEMORY_COMPACT_RATIO
+            * 0.9,  # Safety factor to stay below token limit
         )
 
         (
