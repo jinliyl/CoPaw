@@ -122,6 +122,7 @@ class CoPawAgent(ReActAgent):
         self.command_handler = CommandHandler(
             agent_name=self.name,
             memory=self.memory,
+            formatter=self.formatter,
             memory_manager=self.memory_manager,
             enable_memory_manager=self._enable_memory_manager,
         )

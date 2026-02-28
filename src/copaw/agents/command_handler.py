@@ -3,17 +3,86 @@
 
 This module handles system commands like /compact, /new, /clear, etc.
 """
-import json
 import logging
 from typing import TYPE_CHECKING
 
 from agentscope.agent._react_agent import _MemoryMark
 from agentscope.message import Msg, TextBlock
 
+from .utils import safe_count_message_tokens, safe_count_str_tokens
+
 if TYPE_CHECKING:
     from .memory import MemoryManager
 
 logger = logging.getLogger(__name__)
+
+
+# pylint: disable=too-many-return-statements
+def _get_block_tokens(
+    block: dict,
+    block_type: str,
+) -> tuple[int, str]:
+    """Get token count and content string for different block types.
+
+    Args:
+        block: The content block dict
+        block_type: The type of the block
+
+    Returns:
+        Tuple of (token count, content string)
+    """
+    if block_type == "text":
+        text = block.get("text", "")
+        return (safe_count_str_tokens(text), text) if text else (0, "")
+
+    if block_type == "thinking":
+        thinking = block.get("thinking", "")
+        return (
+            (safe_count_str_tokens(thinking), thinking)
+            if thinking
+            else (0, "")
+        )
+
+    if block_type == "tool_use":
+        # Count input dict and raw_input string
+        input_dict = block.get("input", {})
+        raw_input = block.get("raw_input", "")
+        input_str = str(input_dict) if input_dict else ""
+        total = input_str + raw_input
+        return (safe_count_str_tokens(total), total) if total else (0, "")
+
+    if block_type == "tool_result":
+        output = block.get("output")
+        if isinstance(output, str):
+            return (
+                (safe_count_str_tokens(output), output) if output else (0, "")
+            )
+        if isinstance(output, list):
+            # Recursively count tokens in nested blocks
+            total_tokens = 0
+            total_str = ""
+            for item in output:
+                if isinstance(item, dict):
+                    item_type = item.get("type", "unknown")
+                    item_tokens, item_str = _get_block_tokens(item, item_type)
+                    total_tokens += item_tokens
+                    total_str += item_str
+            return (total_tokens, total_str)
+        return (0, "")
+
+    if block_type in ("image", "audio", "video"):
+        # For media blocks, count the URL or indicate base64 size
+        source = block.get("source", {})
+        if source.get("type") == "url":
+            url = source.get("url", "")
+            return (safe_count_str_tokens(url), url)
+        if source.get("type") == "base64":
+            # Base64 data can be large, return approximate token count
+            data = source.get("data", "")
+            return (len(data) // 4, "[base64]") if data else (0, "")
+        return (0, "")
+
+    return (0, "")
 
 
 class CommandHandler:
@@ -28,6 +97,7 @@ class CommandHandler:
         self,
         agent_name: str,
         memory,
+        formatter,
         memory_manager: "MemoryManager | None" = None,
         enable_memory_manager: bool = True,
     ):
@@ -36,11 +106,13 @@ class CommandHandler:
         Args:
             agent_name: Name of the agent for message creation
             memory: Agent's memory instance
+            formatter: Agent's formatter instance for message formatting
             memory_manager: Optional memory manager instance
             enable_memory_manager: Whether memory manager is enabled
         """
         self.agent_name = agent_name
         self.memory = memory
+        self.formatter = formatter
         self.memory_manager = memory_manager
         self._enable_memory_manager = enable_memory_manager
 
@@ -170,43 +242,63 @@ class CommandHandler:
         """Process /history command."""
 
         compressed_summary = self.memory.get_compressed_summary() or ""
-        compressed_summary_len = len(compressed_summary)
+        compressed_summary_tokens = safe_count_str_tokens(compressed_summary)
+
+        # Calculate total token count using formatter
+        prompt = await self.formatter.format(msgs=messages)
+        messages_tokens = await safe_count_message_tokens(prompt)
+        estimated_tokens = messages_tokens + compressed_summary_tokens
 
         lines = []
         for i, msg in enumerate(messages, 1):
             try:
-                msg_dict = msg.to_dict()
-                msg_dict_len = len(json.dumps(msg_dict, ensure_ascii=False))
-                text = msg.get_text_content() or ""
-                text_len = len(text)
-                preview = f"{text[:100]}..." if len(text) > 100 else text
-
-                # Content blocks info
+                # Content blocks info and total tokens calculation
                 content = msg.content
                 if isinstance(content, str):
+                    text_tokens = safe_count_str_tokens(content)
                     seq_blocks = ""
+                    preview = (
+                        f"{content[:100]}..."
+                        if len(content) > 100
+                        else content
+                    )
                 else:
                     block_infos = []
+                    total_tokens = 0
+                    text_parts = []
                     for block in content:
                         block_type = block.get("type", "unknown")
-                        block_len = len(json.dumps(block, ensure_ascii=False))
-                        block_infos.append(f"{block_type}(len={block_len})")
+                        block_tokens, block_str = _get_block_tokens(
+                            block,
+                            block_type,
+                        )
+                        total_tokens += block_tokens
+                        text_parts.append(block_str)
+                        block_infos.append(
+                            f"{block_type}(tokens={block_tokens})",
+                        )
+                    text_tokens = total_tokens
                     seq_blocks = f"\n    content: [{', '.join(block_infos)}]"
+                    text_preview = "".join(text_parts)
+                    preview = (
+                        f"{text_preview[:100]}..."
+                        if len(text_preview) > 100
+                        else text_preview
+                    )
             except Exception as e:
-                msg_dict_len = 0
-                text_len = 0
+                text_tokens = 0
                 seq_blocks = ""
                 preview = f"<error: {e}>"
             lines.append(
-                f"[{i}] **{msg.role}** (dict_len={msg_dict_len}, "
-                f"text_len={text_len}){seq_blocks}\n"
-                f"    preview: {preview}",
+                f"[{i}] **{msg.role}** (text_tokens={text_tokens})"
+                f"{seq_blocks}\n    preview: {preview}",
             )
 
         return await self._make_system_msg(
             f"**Conversation History**\n\n"
             f"- Total messages: {len(messages)}\n"
-            f"- Compressed summary length: {compressed_summary_len}\n\n"
+            f"- Estimated tokens: {estimated_tokens}\n"
+            f"- Compressed summary tokens: {compressed_summary_tokens}\n\n"
             + "\n\n".join(lines),
         )
 
