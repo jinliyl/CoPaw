@@ -48,7 +48,7 @@ from ...constant import MEMORY_COMPACT_RATIO
 logger = logging.getLogger(__name__)
 
 # Default max length for text truncation
-_DEFAULT_MAX_FORMATTER_TEXT_LENGTH = 4000
+_DEFAULT_MAX_FORMATTER_TEXT_LENGTH = 10000
 
 
 def _truncate_text(text: str, max_length: int | None = None) -> str:
@@ -375,24 +375,22 @@ class TimestampedDashScopeChatFormatter(DashScopeChatFormatter):
             if tool_calls:
                 msg_dashscope["tool_calls"] = tool_calls
 
-            if msg_dashscope["content"] or msg_dashscope.get("tool_calls"):
-                # Check if adding this message would exceed threshold
-                if (
-                    self._memory_compact_threshold > 0
-                    and total_token_count + msg_token_count
-                    > self._memory_compact_threshold
-                ):
-                    # Skip older messages when threshold exceeded
-                    logger.info(
-                        "Skipping older messages: token count %d + %d > %d",
-                        total_token_count,
-                        msg_token_count,
-                        self._memory_compact_threshold,
-                    )
-                    break
+            total_token_count += msg_token_count
+            # Check if adding this message would exceed threshold
+            if (
+                self._memory_compact_threshold
+                < total_token_count + msg_token_count
+            ):
+                # Skip older messages when threshold exceeded
+                logger.info(
+                    "Skipping older messages: token count %d + %d > %d",
+                    total_token_count,
+                    msg_token_count,
+                    self._memory_compact_threshold,
+                )
+                break
 
-                total_token_count += msg_token_count
-                formatted_msgs.append(msg_dashscope)
+            formatted_msgs.append(msg_dashscope)
 
             # Move to previous message
             i -= 1
