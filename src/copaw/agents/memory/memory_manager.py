@@ -405,15 +405,11 @@ class TimestampedDashScopeChatFormatter(DashScopeChatFormatter):
 
             total_token_count += msg_token_count
             # Check if adding this message would exceed threshold
-            if (
-                self._memory_compact_threshold
-                < total_token_count + msg_token_count
-            ):
+            if self._memory_compact_threshold <= total_token_count:
                 # Skip older messages when threshold exceeded
                 logger.info(
-                    "Skipping older messages: token count %d + %d > %d",
+                    "Skipping older messages: token count %d > %d",
                     total_token_count,
-                    msg_token_count,
                     self._memory_compact_threshold,
                 )
                 break
