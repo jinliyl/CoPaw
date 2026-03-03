@@ -14,54 +14,12 @@ from agentscope.agent._react_agent import _MemoryMark
 from ..utils import (
     check_valid_messages,
     safe_count_message_tokens,
-    safe_count_str_tokens,
 )
-from ..memory.copaw_memory import build_previous_summary
-from ..utils.tool_message_utils import _truncate_text
 
 if TYPE_CHECKING:
     from ..memory import MemoryManager
 
 logger = logging.getLogger(__name__)
-
-# Default max length for tool result text truncation during compaction
-_DEFAULT_COMPACT_TOOL_RESULT_MAX_LENGTH = 10000
-
-
-def _truncate_tool_result_texts(
-    messages: list,
-    max_length: int | None = None,
-) -> None:
-    """Truncate text content in tool_result blocks within messages.
-
-    Args:
-        messages: List of Msg objects to process
-        max_length: Maximum allowed length for text content
-                   (from env TOOL_RESULT_MAX_LENGTH or default 10000)
-    """
-    if max_length is None:
-        max_length = int(
-            os.environ.get(
-                "DEFAULT_COMPACT_TOOL_RESULT_MAX_LENGTH",
-                _DEFAULT_COMPACT_TOOL_RESULT_MAX_LENGTH,
-            ),
-        )
-
-    for msg in messages:
-        # Use get_content_blocks to properly extract tool_result blocks
-        tool_result_blocks = msg.get_content_blocks("tool_result")
-
-        for block in tool_result_blocks:
-            output = block.get("output")
-            if isinstance(output, str):
-                # Direct string output
-                block["output"] = _truncate_text(output, max_length)
-            elif isinstance(output, list):
-                # List of content blocks (TextBlock, ImageBlock, etc.)
-                for item in output:
-                    if isinstance(item, dict) and item.get("type") == "text":
-                        text = item.get("text", "")
-                        item["text"] = _truncate_text(text, max_length)
 
 
 class MemoryCompactionHook:
@@ -158,7 +116,11 @@ class MemoryCompactionHook:
 
             # Truncate tool result texts in messages_to_keep
             if self.enable_truncate_tool_result_texts and messages_to_keep:
-                _truncate_tool_result_texts(messages_to_keep)
+                messages_to_keep = (
+                    await self.memory_manager.compact_tool_result(
+                        messages_to_keep,
+                    )
+                )
 
             messages_for_estimate = [
                 *system_prompt_messages,
@@ -211,7 +173,7 @@ class MemoryCompactionHook:
                 )
 
                 compact_content = await self.memory_manager.compact_memory(
-                    messages_to_summarize=messages_to_compact,
+                    messages=messages_to_compact,
                     previous_summary=agent.memory.get_compressed_summary(),
                 )
 
