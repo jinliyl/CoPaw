@@ -103,6 +103,7 @@ class MemoryManager(ReMeCopaw):
         global_config = load_config()
         config_language = global_config.agents.language
         max_input_length = global_config.agents.running.max_input_length
+
         super().update_params(
             max_input_length=max_input_length,
             memory_compact_ratio=MEMORY_COMPACT_RATIO,
