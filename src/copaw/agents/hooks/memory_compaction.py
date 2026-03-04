@@ -14,6 +14,7 @@ from agentscope.agent._react_agent import _MemoryMark
 from ..utils import (
     check_valid_messages,
     safe_count_message_tokens,
+    safe_count_str_tokens,
 )
 
 if TYPE_CHECKING:
@@ -114,22 +115,12 @@ class MemoryCompactionHook:
                 messages_to_compact = remaining_messages
                 messages_to_keep = []
 
-            # Truncate tool result texts in messages_to_keep
-            if self.enable_truncate_tool_result_texts and messages_to_keep:
-                messages_to_keep = (
-                    await self.memory_manager.compact_tool_result(
-                        messages_to_keep,
-                    )
-                )
-
             messages_for_estimate = [
                 *system_prompt_messages,
                 *messages_to_compact,
                 *messages_to_keep,
             ]
-            previous_summary = build_previous_summary(
-                agent.memory.get_compressed_summary() or "",
-            )
+            previous_summary = agent.memory.get_compressed_summary()
             full_prompt = await agent.formatter.format(
                 msgs=messages_for_estimate,
             )
@@ -183,6 +174,15 @@ class MemoryCompactionHook:
                     msg_ids=[msg.id for msg in messages_to_compact],
                 )
                 logger.info(f"Marked {updated_count} messages as compacted")
+
+            else:
+                if (
+                    self.enable_truncate_tool_result_texts
+                    and messages_to_compact
+                ):
+                    await self.memory_manager.compact_tool_result(
+                        messages_to_compact,
+                    )
 
         except Exception as e:
             logger.error(
