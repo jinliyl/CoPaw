@@ -74,19 +74,8 @@ class CommandHandler(ConversationCommandHandlerMixin):
         self._enable_memory_manager = enable_memory_manager
 
     def is_command(self, query: str | None) -> bool:
-        """Check if the query is a system command.
-
-        Args:
-            query: User query string
-
-        Returns:
-            True if query is a system command
-        """
-        if not isinstance(query, str) or not query.startswith("/"):
-            return False
-        # Extract command name (first word after /)
-        cmd_part = query.strip().lstrip("/").split(" ", maxsplit=1)[0]
-        return cmd_part in self.SYSTEM_COMMANDS
+        """Check if the query is a system command (alias for mixin)."""
+        return self.is_conversation_command(query)
 
     async def _make_system_msg(self, text: str) -> Msg:
         """Create a system response message.
