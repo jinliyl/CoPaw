@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, Any
 
 from agentscope.agent._react_agent import _MemoryMark, ReActAgent
 
-from copaw.agents.utils import _get_token_counter
 from copaw.config import load_config
 from copaw.constant import MEMORY_COMPACT_KEEP_RECENT
 from ..utils import (
@@ -41,24 +40,6 @@ class MemoryCompactionHook:
         """
         self.memory_manager = memory_manager
 
-    @staticmethod
-    def calculate_memory_compact_threshold(
-        max_input_length: float,
-        compact_ratio: float,
-    ) -> int:
-        """Calculate the memory compaction threshold.
-
-        Based on input length and ratio.
-
-        Args:
-            max_input_length: Maximum input length in tokens.
-            compact_ratio: Ratio of the input length to use as the threshold.
-
-        Returns:
-            Computed compaction threshold as an integer.
-        """
-        return int(max_input_length * compact_ratio)
-
     async def __call__(
         self,
         agent: ReActAgent,
@@ -83,7 +64,7 @@ class MemoryCompactionHook:
         """
         try:
             memory: "ReMeInMemoryMemory" = agent.memory
-            token_counter = _get_token_counter()
+            token_counter = self.memory_manager.token_counter
 
             system_prompt = agent.sys_prompt
             compressed_summary = memory.get_compressed_summary()

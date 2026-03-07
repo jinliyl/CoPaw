@@ -12,9 +12,10 @@ import logging
 import os
 import platform
 
+from agentscope.formatter import FormatterBase
 from agentscope.message import Msg
+from agentscope.model import ChatModelBase
 from agentscope.tool import Toolkit
-
 from copaw.agents.model_factory import create_model_and_formatter
 from copaw.agents.tools import read_file, write_file, edit_file
 from copaw.agents.utils import _get_token_counter
@@ -151,6 +152,10 @@ class MemoryManager(ReMeLight):
         self.summary_toolkit.register_tool_function(write_file)
         self.summary_toolkit.register_tool_function(edit_file)
 
+        self.chat_model: ChatModelBase | None = None
+        self.formatter: FormatterBase | None = None
+        self.token_counter = _get_token_counter()
+
     @staticmethod
     def _safe_str(key: str, default: str) -> str:
         """
@@ -202,6 +207,14 @@ class MemoryManager(ReMeLight):
             )
             return default
 
+    def prepare_model_formatter(self):
+        if self.chat_model is None or self.formatter is None:
+            chat_model, formatter = create_model_and_formatter()
+            if self.chat_model is None:
+                self.chat_model = chat_model
+            if self.formatter is None:
+                self.formatter = formatter
+
     async def compact_memory(
         self,
         messages: list[Msg],
@@ -218,22 +231,18 @@ class MemoryManager(ReMeLight):
         Returns:
             str: Condensed summary of the messages
         """
+        self.prepare_model_formatter()
+
         config = load_config()
         max_input_length = config.agents.running.max_input_length
         memory_compact_ratio = config.agents.running.memory_compact_ratio
         language = config.agents.language
 
-        # Create model and formatter
-        chat_model, formatter = create_model_and_formatter()
-
-        # Get token counter
-        token_counter = _get_token_counter()
-
         return await super().compact_memory(
             messages=messages,
-            as_llm=chat_model,
-            as_llm_formatter=formatter,
-            token_counter=token_counter,
+            as_llm=self.chat_model,
+            as_llm_formatter=self.formatter,
+            token_counter=self.token_counter,
             language=language,
             max_input_length=max_input_length,
             compact_ratio=memory_compact_ratio,
@@ -258,17 +267,11 @@ class MemoryManager(ReMeLight):
         memory_compact_ratio = config.agents.running.memory_compact_ratio
         language = config.agents.language
 
-        # Create model and formatter
-        chat_model, formatter = create_model_and_formatter()
-
-        # Get token counter
-        token_counter = _get_token_counter()
-
         return await super().summary_memory(
             messages=messages,
-            as_llm=chat_model,
-            as_llm_formatter=formatter,
-            token_counter=token_counter,
+            as_llm=self.chat_model,
+            as_llm_formatter=self.formatter,
+            token_counter=self.token_counter,
             toolkit=self.summary_toolkit,
             language=language,
             max_input_length=max_input_length,
@@ -284,5 +287,4 @@ class MemoryManager(ReMeLight):
         Returns:
             The in-memory memory content with token counting support
         """
-        token_counter = _get_token_counter()
-        return super().get_in_memory_memory(token_counter=token_counter)
+        return super().get_in_memory_memory(token_counter=self.token_counter)
