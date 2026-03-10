@@ -1,13 +1,6 @@
-# Memory
+# Long-term Memory
 
-**Memory** gives CoPAW persistent memory across conversations: it automatically manages the context window and writes key information to files for long-term storage.
-
-The memory system provides two core capabilities:
-
-- **Context Management** — Automatically compresses conversations into concise summaries before the context window overflows
-- **Long-term Memory Management** — Writes key information to Markdown files via file tools, with semantic search for recall at any time
-
-> The memory design is inspired by the [OpenClaw](https://github.com/openclaw/openclaw) memory architecture and implemented by [ReMe](https://github.com/agentscope-ai/ReMe).
+**Long-term Memory** gives CoPAW persistent memory across conversations: writes key information to Markdown files for long-term storage, with semantic search for recall at any time.
 
 ---
 
@@ -16,9 +9,7 @@ The memory system provides two core capabilities:
 ```mermaid
 graph TB
     User[User / Agent] --> MM[MemoryManager]
-    MM --> ContextMgmt[Context Management]
     MM --> MemoryMgmt[Long-term Memory Management]
-    ContextMgmt --> Summary[Context Compression]
     MemoryMgmt --> FileTools[Memory Update]
     MemoryMgmt --> Watcher[Memory Index Update]
     MemoryMgmt --> SearchLayer[Hybrid Memory Search]
@@ -71,22 +62,17 @@ One page per day, appended with the day's work and interactions.
 
 ### When to Write Memory?
 
-| Information Type                         | Write Target              | Method                            | Example                                                                                                     |
-| ---------------------------------------- | ------------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| Decisions, preferences, persistent facts | `MEMORY.md`               | `write` / `edit` tools            | "Project uses Python 3.12", "Prefers pytest framework"                                                      |
-| Daily notes, runtime context             | `memory/YYYY-MM-DD.md`    | `write` / `edit` tools            | "Fixed login bug today", "Deployed v2.1"                                                                    |
-| Auto-summary on context overflow         | `memory/YYYY-MM-DD.md`    | Auto-triggered (`summary_memory`) | When context tokens exceed the threshold, the system automatically writes a conversation summary to the log |
-| User says "remember this"                | Write to file immediately | `write` tool                      | Do not only save in memory!                                                                                 |
+| Information Type                         | Write Target              | Method                 | Example                                                |
+| ---------------------------------------- | ------------------------- | ---------------------- | ------------------------------------------------------ |
+| Decisions, preferences, persistent facts | `MEMORY.md`               | `write` / `edit` tools | "Project uses Python 3.12", "Prefers pytest framework" |
+| Daily notes, runtime context             | `memory/YYYY-MM-DD.md`    | `write` / `edit` tools | "Fixed login bug today", "Deployed v2.1"               |
+| User says "remember this"                | Write to file immediately | `write` tool           | Do not only save in memory!                            |
 
 ---
 
 ## Memory Configuration
 
-### LLM Configuration
-
-The Memory Manager's LLM parameters are consistent with the global configuration, automatically reading the active LLM config (`api_key`, `base_url`, `model`) from `providers.json`. The language of memory-related prompts also follows the `agents.language` field in `config.json` (`zh` = Chinese, otherwise English).
-
-### Embedding Configuration
+### Embedding Configuration (Optional)
 
 Configure the Embedding service via the following environment variables for vector semantic search:
 
@@ -101,22 +87,7 @@ Configure the Embedding service via the following environment variables for vect
 | `EMBEDDING_MAX_INPUT_LENGTH` | Maximum input length per Embedding request             | `8192`                                               |
 | `EMBEDDING_MAX_BATCH_SIZE`   | Maximum batch size for Embedding requests              | `10`                                                 |
 
-### Search Mode Configuration
-
-| Environment Variable | Description                             | Default |
-| -------------------- | --------------------------------------- | ------- |
-| `FTS_ENABLED`        | Whether to enable BM25 full-text search | `true`  |
-
-**Search mode behavior:**
-
-| Vector Search (`EMBEDDING_API_KEY` configured) | Full-text Search (`FTS_ENABLED=true`) |                      Actual Search Mode                       |
-| :--------------------------------------------: | :-----------------------------------: | :-----------------------------------------------------------: |
-|                       ✅                       |                  ✅                   |    Vector + BM25 hybrid search (recommended, best results)    |
-|                       ✅                       |                  ❌                   |                  Vector semantic search only                  |
-|                       ❌                       |                  ✅                   |  BM25 full-text search only (poor results in some scenarios)  |
-|                       ❌                       |                  ❌                   | ⚠️ **Not allowed** — at least one search mode must be enabled |
-
-> **Recommended**: Configure `EMBEDDING_API_KEY` and keep `FTS_ENABLED=true` to use Vector + BM25 hybrid search for optimal recall.
+> Both `EMBEDDING_API_KEY` and `EMBEDDING_MODEL_NAME` must be non-empty to enable vector search in hybrid retrieval.
 
 ### Underlying Database
 
