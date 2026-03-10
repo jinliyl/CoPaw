@@ -185,7 +185,7 @@ const DOC_SLUG_ICONS: Record<string, LucideIcon> = {
   skills: Wrench,
   mcp: Plug,
   memory: Brain,
-  context_management: Archive,
+  context: Archive,
   commands: Command,
   heartbeat: Activity,
   config: Settings,
