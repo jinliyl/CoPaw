@@ -13,7 +13,4 @@ export interface AgentsRunningConfig {
   memory_reserve_ratio: number;
   enable_tool_result_compact: boolean;
   tool_result_compact_keep_n: number;
-  // Computed fields (read-only, returned by API but not saved)
-  memory_compact_reserve?: number;
-  memory_compact_threshold?: number;
 }
